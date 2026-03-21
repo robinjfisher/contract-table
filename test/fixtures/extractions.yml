@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  contract: one
+  field: one
+  value: MyText
+  source_text: MyText
+  source_page: 1
+  manually_edited: false
+
+two:
+  contract: two
+  field: two
+  value: MyText
+  source_text: MyText
+  source_page: 1
+  manually_edited: false

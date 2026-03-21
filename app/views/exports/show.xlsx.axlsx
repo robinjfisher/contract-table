@@ -1,0 +1,22 @@
+wb = xlsx_package.workbook
+
+wb.add_worksheet(name: "Contracts") do |sheet|
+  header_style = wb.styles.add_style(b: true, bg_color: "F3F4F6", border: { style: :thin, color: "D1D5DB" })
+  cell_style   = wb.styles.add_style(border: { style: :thin, color: "E5E7EB" })
+
+  # Header row
+  sheet.add_row([ "File" ] + @fields.map(&:label), style: header_style)
+
+  # Data rows
+  @contracts.each do |contract|
+    row = [ contract.name ]
+    @fields.each do |field|
+      extraction = contract.extractions.find { |e| e.field_id == field.id }
+      row << extraction&.value
+    end
+    sheet.add_row(row, style: cell_style)
+  end
+
+  # Auto-width columns
+  sheet.column_widths(*Array.new(@fields.size + 1, 30))
+end

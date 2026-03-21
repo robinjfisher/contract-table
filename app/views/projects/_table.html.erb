@@ -1,0 +1,100 @@
+<div id="contracts-table">
+
+  <%# Toolbar %>
+  <div class="flex items-start justify-between mb-3 gap-4">
+
+    <details class="group/addfield">
+      <summary class="cursor-pointer list-none inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Add custom field
+      </summary>
+      <div class="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <%= form_with url: project_fields_path(project), scope: :field do |f| %>
+          <div class="flex gap-3 items-end">
+            <div class="flex-1">
+              <%= f.label :label, "Field name", class: "block text-xs font-medium text-gray-600 mb-1" %>
+              <%= f.text_field :label, placeholder: "e.g. Payment Terms",
+                    class: "w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+            </div>
+            <div class="flex-[2]">
+              <%= f.label :question, "What should Claude extract?", class: "block text-xs font-medium text-gray-600 mb-1" %>
+              <%= f.text_field :question, placeholder: "e.g. What are the payment terms?",
+                    class: "w-full border border-gray-200 rounded-md px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+            </div>
+            <%= f.submit "Add field",
+                  class: "shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md cursor-pointer transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+    </details>
+
+    <div class="flex gap-2 shrink-0">
+      <%= link_to "Export CSV",
+            project_export_path(project, format: :csv),
+            class: "inline-flex items-center text-xs font-medium text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-300 rounded-md px-3 py-1.5 transition-colors" %>
+      <%= link_to "Export Excel",
+            project_export_path(project, format: :xlsx),
+            class: "inline-flex items-center text-xs font-medium text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-300 rounded-md px-3 py-1.5 transition-colors" %>
+    </div>
+  </div>
+
+  <%# Table — scrolls on both axes; header and first column are sticky %>
+  <div class="overflow-auto rounded-xl border border-gray-200 max-h-[calc(100vh-16rem)] shadow-sm">
+    <table class="w-full table-fixed text-sm border-separate border-spacing-0">
+      <colgroup>
+        <col class="w-56">
+        <col class="w-28">
+        <% fields.each do %>
+          <col class="w-44">
+        <% end %>
+      </colgroup>
+
+      <thead>
+        <tr>
+          <%# File column — sticky left + top (corner) %>
+          <th scope="col"
+              class="sticky left-0 top-0 z-30 bg-gray-50 px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-r border-gray-200 whitespace-nowrap">
+            File
+          </th>
+          <%# Status column — sticky top only %>
+          <th scope="col"
+              class="sticky top-0 z-20 bg-gray-50 px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 whitespace-nowrap">
+            Status
+          </th>
+          <%# Field columns — sticky top only %>
+          <% fields.each do |field| %>
+            <th scope="col"
+                class="sticky top-0 z-20 bg-gray-50 px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              <div class="flex items-center justify-between gap-1 group/col">
+                <span class="truncate"><%= field.label %></span>
+                <%= form_with url: project_field_path(project, field), method: :delete, class: "shrink-0" do %>
+                  <button type="submit"
+                          title="Remove <%= field.label %>"
+                          class="opacity-0 group-hover/col:opacity-100 transition-opacity text-gray-300 hover:text-red-500 text-base leading-none font-normal">
+                    &times;
+                  </button>
+                <% end %>
+              </div>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+
+      <tbody id="contracts" class="bg-white">
+        <% if contracts.empty? %>
+          <tr id="contracts-empty-state">
+            <td colspan="<%= 2 + fields.size %>"
+                class="px-4 py-16 text-center text-sm text-gray-400">
+              No contracts yet — upload one to get started.
+            </td>
+          </tr>
+        <% else %>
+          <%= render partial: "contracts/contract", collection: contracts, locals: { fields: fields } %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "Contract Table" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Contract Table">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen antialiased">
+
+    <%# Top navigation bar %>
+    <header class="fixed top-0 inset-x-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+      <div class="max-w-screen-2xl mx-auto px-6 h-14 flex items-center justify-between">
+
+        <%# Brand %>
+        <%= link_to root_path, class: "flex items-center gap-2.5 shrink-0" do %>
+          <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 0 1 3.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 0 1 3.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 0 1-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875Zm6.905 9.97a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 1 0 1.06 1.06l1.72-1.72V18a.75.75 0 0 0 1.5 0v-4.19l1.72 1.72a.75.75 0 1 0 1.06-1.06l-3-3Z" clip-rule="evenodd" />
+            <path d="M14.25 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 16.5 7.5h-1.875a.375.375 0 0 1-.375-.375V5.25Z" />
+          </svg>
+          <span class="text-sm font-semibold text-gray-900 tracking-tight">Contract Table</span>
+          <span class="hidden sm:inline-flex items-center text-xs font-medium bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Beta</span>
+        <% end %>
+
+        <%# Nav links %>
+        <nav class="flex items-center gap-1">
+          <%= link_to "Projects", root_path,
+                class: "text-sm text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors" %>
+        </nav>
+      </div>
+    </header>
+
+    <%# Page content %>
+    <main class="max-w-screen-2xl mx-auto px-6 pt-20 pb-12">
+      <%= yield %>
+    </main>
+
+  </body>
+</html>

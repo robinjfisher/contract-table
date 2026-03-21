@@ -1,0 +1,32 @@
+<%= turbo_frame_tag "source_panel" do %>
+  <div class="p-5 space-y-4">
+    <%# Field + contract metadata %>
+    <div>
+      <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"><%= @extraction.field.label %></p>
+      <p class="mt-1 text-sm text-gray-700 truncate" title="<%= @extraction.contract.name %>">
+        <%= @extraction.contract.name %>
+      </p>
+      <% if @extraction.source_page.present? %>
+        <p class="mt-0.5 text-xs text-gray-400">Page <%= @extraction.source_page %></p>
+      <% end %>
+    </div>
+
+    <%# Extracted value %>
+    <% if @extraction.value.present? %>
+      <div class="rounded-md bg-blue-50 px-3 py-2">
+        <p class="text-xs font-medium text-blue-700 mb-1">Extracted value</p>
+        <p class="text-sm text-blue-900"><%= @extraction.value %></p>
+      </div>
+    <% end %>
+
+    <%# Source excerpt with matched value highlighted %>
+    <% if @extraction.source_text.present? %>
+      <div>
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Source clause</p>
+        <blockquote class="text-sm text-gray-700 leading-relaxed border-l-2 border-gray-200 pl-3">
+          <%= highlight_extraction(@extraction.source_text, @extraction.value) %>
+        </blockquote>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,38 @@
+class ExtractionsController < ApplicationController
+  before_action :set_project
+
+  def show
+    @extraction = Extraction.joins(contract: :project)
+                            .where(projects: { id: @project.id })
+                            .includes(:field, contract: :project)
+                            .find(params[:id])
+  end
+
+  def update
+    @extraction = Extraction.joins(contract: :project)
+                            .where(projects: { id: @project.id })
+                            .find(params[:id])
+
+    @extraction.update!(
+      value: params.dig(:extraction, :value)&.strip,
+      manually_edited: true
+    )
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "extraction_#{@extraction.contract_id}_#{@extraction.field_id}",
+          partial: "extractions/cell",
+          locals: { extraction: @extraction, project_id: @project.id }
+        )
+      end
+      format.html { redirect_to @project }
+    end
+  end
+
+  private
+
+  def set_project
+    @project = Project.find(params[:project_id])
+  end
+end

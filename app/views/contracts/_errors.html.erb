@@ -1,0 +1,10 @@
+<% if errors.any? %>
+  <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+    <p class="text-sm font-medium text-red-700 mb-1">Some files could not be uploaded:</p>
+    <ul class="text-sm text-red-600 list-disc list-inside space-y-0.5">
+      <% errors.each do |error| %>
+        <li><%= error %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

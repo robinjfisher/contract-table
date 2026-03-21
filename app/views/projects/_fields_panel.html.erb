@@ -1,0 +1,81 @@
+<div id="fields-panel" class="mb-6 border border-gray-200 rounded-lg p-4">
+  <h2 class="text-sm font-semibold text-gray-700 mb-3">Fields</h2>
+
+  <%# Error messages for custom field form %>
+  <% if errors.any? %>
+    <div class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+      <%= errors.join(", ") %>
+    </div>
+  <% end %>
+
+  <%# Predefined field toggles %>
+  <div class="mb-4">
+    <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Predefined</p>
+    <div class="space-y-1">
+      <% Field::PREDEFINED_FIELDS.each do |template| %>
+        <% active_field = fields.predefined.find { |f| f.predefined_key == template[:predefined_key] } %>
+        <% if active_field %>
+          <%# Destroy form when field is active %>
+          <%= form_with url: project_field_path(project, active_field), method: :delete,
+                        data: { controller: "field", turbo_stream: true } do %>
+            <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded px-1 py-0.5">
+              <input type="checkbox" checked class="rounded text-blue-600"
+                     data-action="change->field#toggle">
+              <span class="text-sm text-gray-700"><%= template[:label] %></span>
+            </label>
+          <% end %>
+        <% else %>
+          <%# Create form when field is inactive %>
+          <%= form_with url: project_fields_path(project),
+                        data: { controller: "field", turbo_stream: true } do %>
+            <%= hidden_field_tag "field[predefined_key]", template[:predefined_key] %>
+            <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded px-1 py-0.5">
+              <input type="checkbox" class="rounded text-blue-600"
+                     data-action="change->field#toggle">
+              <span class="text-sm text-gray-400"><%= template[:label] %></span>
+            </label>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Custom fields %>
+  <% custom_fields = fields.custom %>
+  <% if custom_fields.any? %>
+    <div class="mb-4">
+      <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Custom</p>
+      <div class="space-y-1">
+        <% custom_fields.each do |field| %>
+          <div class="flex items-center justify-between px-1 py-0.5 hover:bg-gray-50 rounded group">
+            <span class="text-sm text-gray-700"><%= field.label %></span>
+            <%= form_with url: project_field_path(project, field), method: :delete,
+                          data: { turbo_stream: true } do %>
+              <button type="submit" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs leading-none">
+                ✕
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Add custom field form %>
+  <details class="mt-2">
+    <summary class="text-xs text-blue-600 hover:underline cursor-pointer select-none">+ Add custom field</summary>
+    <div class="mt-3 space-y-2">
+      <%= form_with url: project_fields_path(project), scope: :field, data: { turbo_stream: true } do |f| %>
+        <div>
+          <%= f.label :label, "Label", class: "block text-xs font-medium text-gray-600 mb-0.5" %>
+          <%= f.text_field :label, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder: "e.g. Payment Terms" %>
+        </div>
+        <div>
+          <%= f.label :question, "Question", class: "block text-xs font-medium text-gray-600 mb-0.5" %>
+          <%= f.text_area :question, rows: 2, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder: "e.g. What are the payment terms?" %>
+        </div>
+        <%= f.submit "Add Field", class: "bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
+      <% end %>
+    </div>
+  </details>
+</div>

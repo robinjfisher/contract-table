@@ -1,0 +1,59 @@
+<tr id="contract_<%= contract.id %>"
+    class="group/row transition-colors hover:bg-sky-50/40 even:bg-gray-50/40 even:hover:bg-sky-50/40">
+
+  <%# File column — sticky left, background tracks row state %>
+  <td class="sticky left-0 z-10 px-4 py-3 border-b border-r border-gray-100
+             bg-white group-hover/row:bg-sky-50/40
+             [tr.even_&]:bg-gray-50/40 even:group-hover/row:bg-sky-50/40
+             align-top">
+    <div class="flex items-start gap-2 min-w-0">
+      <svg class="h-4 w-4 text-gray-300 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+      </svg>
+      <div class="min-w-0 flex-1">
+        <%= link_to contract.name,
+              project_contract_path(contract.project_id, contract),
+              title: contract.name,
+              data: { turbo_frame: "contract_preview", action: "panel#openPreview" },
+              class: "block truncate text-sm font-medium text-gray-800 hover:text-blue-600 transition-colors" %>
+        <div class="mt-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
+          <%= form_with url: rerun_project_contract_path(contract.project_id, contract), method: :post do %>
+            <button type="submit" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 transition-colors">
+              <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Re-run
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </td>
+
+  <%# Status %>
+  <td class="px-4 py-3 border-b border-gray-100 align-top">
+    <%= render "contracts/status_frame", contract: contract %>
+  </td>
+
+  <%# Extraction cells %>
+  <% (local_assigns[:fields] || @fields || []).each do |field| %>
+    <td class="px-4 py-3 border-b border-gray-100 align-top text-gray-700">
+      <% extraction = contract.extractions.find { |e| e.field_id == field.id } %>
+      <% if extraction %>
+        <%= render "extractions/cell", extraction: extraction, project_id: contract.project_id %>
+      <% else %>
+        <%= turbo_frame_tag "extraction_#{contract.id}_#{field.id}" do %>
+          <% if contract.processing? %>
+            <svg class="animate-spin h-3.5 w-3.5 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 12 0 12 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          <% else %>
+            <span class="text-gray-300">–</span>
+          <% end %>
+        <% end %>
+      <% end %>
+    </td>
+  <% end %>
+
+</tr>

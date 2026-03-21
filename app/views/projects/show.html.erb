@@ -1,0 +1,114 @@
+<%= turbo_stream_from "project_#{@project.id}" %>
+
+<div class="w-full" data-controller="panel modal">
+
+  <%# Header %>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-semibold text-gray-900"><%= @project.name %></h1>
+    <div class="flex items-center gap-4">
+      <button data-action="modal#open"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+        </svg>
+        Upload contracts
+      </button>
+      <%= link_to "All Projects", projects_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
+    </div>
+  </div>
+
+  <%# Upload error messages (rendered outside modal so they persist after close) %>
+  <div id="upload-errors"></div>
+
+  <%# Contracts table %>
+  <%= render "projects/table", project: @project, fields: @fields, contracts: @contracts %>
+
+  <%# Upload modal backdrop %>
+  <div data-modal-target="backdrop"
+       data-action="click->modal#backdropClick"
+       class="hidden fixed inset-0 bg-black/50 z-40">
+    <div class="flex items-center justify-center h-full p-4">
+
+    <%# Modal card %>
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <h2 class="text-base font-semibold text-gray-900">Upload contracts</h2>
+        <button data-action="modal#close"
+                class="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Close">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6">
+        <%= form_with url: project_contracts_path(@project),
+                      multipart: true,
+                      data: { controller: "upload", action: "turbo:submit-end->modal#submitEnd" } do |f| %>
+          <label class="block border-2 border-dashed border-gray-300 rounded-lg p-10 text-center cursor-pointer transition-colors hover:border-blue-400 hover:bg-blue-50"
+                 data-upload-target="zone"
+                 data-action="dragover->upload#dragover dragleave->upload#dragleave drop->upload#drop">
+            <svg class="mx-auto mb-3 h-10 w-10 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+            </svg>
+            <p class="text-sm text-gray-600">
+              <span class="text-blue-600 font-medium">Click to browse</span> or drag &amp; drop
+            </p>
+            <p class="text-xs text-gray-400 mt-1">PDF or DOCX — multiple files supported</p>
+            <%= f.file_field :files,
+                  multiple: true,
+                  accept: ".pdf,.docx",
+                  name: "contracts[files][]",
+                  class: "sr-only",
+                  data: { upload_target: "input", action: "change->upload#change" } %>
+          </label>
+        <% end %>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <%# Source panel backdrop %>
+  <div data-panel-target="overlay"
+       data-action="click->panel#close"
+       class="hidden fixed inset-0 bg-black/20 z-40"></div>
+
+  <%# Source slide-over (narrow) %>
+  <div data-panel-target="panel"
+       class="fixed inset-y-0 right-0 w-md bg-white shadow-2xl z-50 flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
+      <h3 class="font-semibold text-gray-900">Source</h3>
+      <button data-action="click->panel#close"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <%= turbo_frame_tag "source_panel", class: "flex-1 overflow-y-auto" %>
+  </div>
+
+  <%# Preview panel backdrop %>
+  <div data-panel-target="previewOverlay"
+       data-action="click->panel#closePreview"
+       class="hidden fixed inset-0 bg-black/20 z-40"></div>
+
+  <%# Preview slide-over (wide) %>
+  <div data-panel-target="preview"
+       class="fixed inset-y-0 right-0 w-[56rem] max-w-[90vw] bg-white shadow-2xl z-50 flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
+      <h3 class="font-semibold text-gray-900">Document Preview</h3>
+      <button data-action="click->panel#closePreview"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <%= turbo_frame_tag "contract_preview", class: "flex-1 flex flex-col min-h-0" %>
+  </div>
+
+</div>
