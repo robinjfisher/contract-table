@@ -151,7 +151,7 @@ class AnthropicClient
     when "yes_no"
       "#{field.question} Respond with 'Yes' or 'No' followed by a brief qualification if relevant (max 10 words)."
     when "date"
-      "#{field.question} Return the date only in a readable format e.g. '31 December 2026', or 'Ongoing' if no fixed date."
+      "#{field.question} Return the date in ISO 8601 format (YYYY-MM-DD), e.g. '2026-12-31'. Use 'Ongoing' if there is no fixed end date."
     else
       field.question
     end

@@ -24,7 +24,14 @@
             <% end %>
           </span>
         <% when "date" %>
-          <span class="font-mono text-gray-900 tabular-nums line-clamp-2"><%= extraction.value %></span>
+          <%
+            display_date = begin
+              Date.iso8601(extraction.value).strftime("%-d %B %Y")
+            rescue ArgumentError, TypeError, Date::Error
+              extraction.value
+            end
+          %>
+          <span class="font-mono text-gray-900 tabular-nums line-clamp-2"><%= display_date %></span>
         <% else %>
           <span class="text-gray-900 line-clamp-3"><%= extraction.value %></span>
         <% end %>
