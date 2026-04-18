@@ -1,0 +1,41 @@
+<%= turbo_frame_tag "contract_#{contract.id}_risk" do %>
+  <div class="mt-1 group/risk">
+    <%# Persistent badge — visible when set, hidden on row hover (replaced by buttons) %>
+    <% if contract.risk_status.present? %>
+      <%
+        badge_classes = {
+          "clear"   => "bg-green-100 text-green-700",
+          "caution" => "bg-amber-100 text-amber-700",
+          "alert"   => "bg-red-100 text-red-700"
+        }
+      %>
+      <span class="inline-flex items-center text-xs font-medium px-1.5 py-0.5 rounded
+                   group-hover/row:hidden <%= badge_classes[contract.risk_status] %>">
+        <%= contract.risk_status.capitalize %>
+      </span>
+    <% end %>
+
+    <%# Three buttons — shown on row hover %>
+    <%
+      button_classes = {
+        "clear"   => "bg-green-100 text-green-700 hover:bg-green-200",
+        "caution" => "bg-amber-100 text-amber-700 hover:bg-amber-200",
+        "alert"   => "bg-red-100 text-red-700 hover:bg-red-200"
+      }
+    %>
+    <div class="items-center gap-1
+                <%= contract.risk_status.present? ? 'hidden group-hover/row:flex' : 'opacity-0 group-hover/row:opacity-100 transition-opacity flex' %>">
+      <% Contract::RISK_STATUSES.each do |status| %>
+        <%= form_with url: risk_project_contract_path(contract.project_id, contract), method: :patch do |f| %>
+          <%= f.hidden_field :risk_status, value: contract.risk_status == status ? "" : status %>
+          <button type="submit"
+                  class="text-xs font-medium px-1.5 py-0.5 rounded transition-colors
+                         <%= button_classes[status] %>
+                         <%= contract.risk_status == status ? 'ring-1 ring-current' : '' %>">
+            <%= status.capitalize %>
+          </button>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

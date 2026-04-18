@@ -38,6 +38,7 @@
     </details>
 
     <div class="flex gap-2 shrink-0 items-center">
+      <%= render "contracts/risk_summary", project: project %>
       <%= render "contracts/review_progress", project: project %>
       <% if @sort_field&.positive? || @filter_value.present? %>
         <%= link_to "Clear filters", project_path(project),

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_162541) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_173413) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_162541) do
     t.integer "project_id", null: false
     t.boolean "reviewed", default: false, null: false
     t.datetime "reviewed_at"
+    t.string "risk_status"
     t.integer "status"
     t.datetime "updated_at", null: false
     t.index ["project_id"], name: "index_contracts_on_project_id"

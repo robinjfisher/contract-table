@@ -46,6 +46,34 @@ class ContractsController < ApplicationController
     @contract = @project.contracts.find(params[:id])
   end
 
+  def risk
+    @contract = @project.contracts.find(params[:id])
+    new_status = params[:risk_status].presence
+
+    attrs = { risk_status: new_status }
+    if new_status.present? && !@contract.reviewed?
+      attrs[:reviewed]    = true
+      attrs[:reviewed_at] = Time.current
+    end
+    @contract.update!(attrs)
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.replace("contract_#{@contract.id}_risk",
+            partial: "contracts/risk_controls", locals: { contract: @contract }),
+          turbo_stream.replace("contract_#{@contract.id}_review",
+            partial: "contracts/review_button", locals: { contract: @contract }),
+          turbo_stream.replace("review-progress",
+            partial: "contracts/review_progress", locals: { project: @project }),
+          turbo_stream.replace("risk-summary",
+            partial: "contracts/risk_summary", locals: { project: @project })
+        ]
+      end
+      format.html { redirect_to @project }
+    end
+  end
+
   def review
     @contract = @project.contracts.find(params[:id])
     @contract.update!(

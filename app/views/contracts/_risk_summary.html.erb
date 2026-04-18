@@ -1,0 +1,20 @@
+<%= turbo_frame_tag "risk-summary" do %>
+  <% alerts   = project.contracts.where(risk_status: "alert").count %>
+  <% cautions = project.contracts.where(risk_status: "caution").count %>
+  <% if alerts > 0 || cautions > 0 %>
+    <span class="flex items-center gap-2.5 text-xs">
+      <% if alerts > 0 %>
+        <span class="inline-flex items-center gap-1 text-red-700 font-medium">
+          <span class="h-1.5 w-1.5 rounded-full bg-red-500 inline-block"></span>
+          <%= alerts %> <%= alerts == 1 ? "alert" : "alerts" %>
+        </span>
+      <% end %>
+      <% if cautions > 0 %>
+        <span class="inline-flex items-center gap-1 text-amber-700 font-medium">
+          <span class="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block"></span>
+          <%= cautions %> <%= cautions == 1 ? "caution" : "cautions" %>
+        </span>
+      <% end %>
+    </span>
+  <% end %>
+<% end %>
