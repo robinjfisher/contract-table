@@ -13,10 +13,15 @@ class ExtractionsController < ApplicationController
                             .where(projects: { id: @project.id })
                             .find(params[:id])
 
-    @extraction.update!(
-      value: params.dig(:extraction, :value)&.strip,
-      manually_edited: true
-    )
+    attrs = {}
+    if params[:extraction]&.key?("value")
+      attrs[:value] = params.dig(:extraction, :value)&.strip
+      attrs[:manually_edited] = true
+    end
+    if params[:extraction]&.key?("annotation")
+      attrs[:annotation] = params.dig(:extraction, :annotation)&.strip.presence
+    end
+    @extraction.update!(attrs)
 
     respond_to do |format|
       format.turbo_stream do

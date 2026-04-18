@@ -9,9 +9,9 @@
         <% case extraction.field.field_type %>
         <% when "yes_no" %>
           <%
-            leading     = extraction.value.match(/\A(Yes|No)\b/i)&.to_s
+            leading       = extraction.value.match(/\A(Yes|No)\b/i)&.to_s
             qualification = extraction.value.sub(/\A(Yes|No)[[:space:]–\-]*/i, "").strip
-            badge_class = leading&.downcase == "yes" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            badge_class   = leading&.downcase == "yes" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
           %>
           <span class="inline-flex items-baseline flex-wrap gap-x-1.5">
             <% if leading.present? %>
@@ -36,8 +36,24 @@
       <% end %>
     </div>
 
+    <%# Hover icons — source (right-0) and annotation (right-4 when source present, else right-0) %>
+    <% has_source     = extraction.source_text.present? %>
+    <% has_annotation = extraction.annotation.present? %>
+    <% note_right     = has_source ? "right-4" : "right-0" %>
+
+    <%# Annotation icon / filled indicator %>
+    <%= link_to project_extraction_path(project_id, extraction),
+                data: { turbo_frame: "source_panel", action: "panel#open" },
+                class: "absolute top-0 #{note_right} p-0.5 transition-opacity
+                        #{has_annotation ? 'text-blue-500 opacity-100' : 'text-gray-300 hover:text-blue-500 opacity-0 group-hover/cell:opacity-100'}",
+                title: has_annotation ? "View note" : "Add note" do %>
+      <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="<%= has_annotation ? 'currentColor' : 'none' %>" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+      </svg>
+    <% end %>
+
     <%# View source icon (hover, only when source is available) %>
-    <% if extraction.source_text.present? %>
+    <% if has_source %>
       <%= link_to project_extraction_path(project_id, extraction),
                   data: { turbo_frame: "source_panel", action: "panel#open" },
                   class: "absolute top-0 right-0 p-0.5 text-gray-300 hover:text-blue-500 opacity-0 group-hover/cell:opacity-100 transition-opacity",
