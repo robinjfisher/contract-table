@@ -74,6 +74,13 @@
           <%= f.label :question, "Question", class: "block text-xs font-medium text-gray-600 mb-0.5" %>
           <%= f.text_area :question, rows: 2, class: "w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder: "e.g. What are the payment terms?" %>
         </div>
+        <div>
+          <%= f.label :field_type, "Type", class: "block text-xs font-medium text-gray-600 mb-0.5" %>
+          <%= f.select :field_type,
+                [["Text", "text"], ["Yes / No", "yes_no"], ["Date", "date"]],
+                {},
+                class: "w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
         <%= f.submit "Add Field", class: "bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 cursor-pointer" %>
       <% end %>
     </div>

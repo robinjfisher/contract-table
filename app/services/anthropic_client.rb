@@ -16,7 +16,7 @@ class AnthropicClient
   def extract_all(contract:, fields:)
     return {} if fields.empty?
 
-    questions = fields.map { |f| "- Field ID #{f.id} (#{f.label}): #{f.question}" }.join("\n")
+    questions = fields.map { |f| "- Field ID #{f.id} (#{f.label}): #{question_with_hint(f)}" }.join("\n")
     prompt = <<~TEXT
       You are a contract analysis assistant. Extract the following fields from the contract.
       For each field, use the field ID exactly as given. If a value is not present, set it to null.
@@ -67,7 +67,7 @@ class AnthropicClient
       You are a contract analysis assistant. Extract the requested information from the contract.
       If the information is not present, set value to null and leave source fields empty.
 
-      Question: #{field.question}
+      Question: #{question_with_hint(field)}
     TEXT
 
     response = @client.messages.create(
@@ -144,6 +144,17 @@ class AnthropicClient
         required: [ "extractions" ]
       }
     }
+  end
+
+  def question_with_hint(field)
+    case field.field_type
+    when "yes_no"
+      "#{field.question} Respond with 'Yes' or 'No' followed by a brief qualification if relevant (max 10 words)."
+    when "date"
+      "#{field.question} Return the date only in a readable format e.g. '31 December 2026', or 'Ongoing' if no fixed date."
+    else
+      field.question
+    end
   end
 
   def extraction_tool

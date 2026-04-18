@@ -10,6 +10,7 @@ class FieldsController < ApplicationController
         label: template[:label],
         question: template[:question],
         predefined_key: template[:predefined_key],
+        field_type: template.fetch(:field_type, "text"),
         position: next_position
       )
     else
@@ -37,7 +38,7 @@ class FieldsController < ApplicationController
   end
 
   def field_params
-    params.require(:field).permit(:label, :question)
+    params.require(:field).permit(:label, :question, :field_type)
   end
 
   def next_position
