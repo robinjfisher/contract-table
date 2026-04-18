@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :projects do
     resources :contracts, only: [ :create, :destroy, :show ] do
       post :rerun, on: :member
+      patch :review, on: :member
     end
     resources :fields, only: [ :create, :destroy ]
     resources :extractions, only: [ :show, :update ]

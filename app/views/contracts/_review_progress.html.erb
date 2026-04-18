@@ -1,0 +1,13 @@
+<%= turbo_frame_tag "review-progress" do %>
+  <% total    = project.contracts.count %>
+  <% reviewed = project.contracts.where(reviewed: true).count %>
+  <% if total > 0 %>
+    <span class="text-xs text-gray-500">
+      <% if reviewed == total %>
+        <span class="text-green-600 font-medium">All <%= total %> reviewed</span>
+      <% else %>
+        <%= reviewed %> of <%= total %> reviewed
+      <% end %>
+    </span>
+  <% end %>
+<% end %>

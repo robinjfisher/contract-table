@@ -46,6 +46,31 @@ class ContractsController < ApplicationController
     @contract = @project.contracts.find(params[:id])
   end
 
+  def review
+    @contract = @project.contracts.find(params[:id])
+    @contract.update!(
+      reviewed: !@contract.reviewed,
+      reviewed_at: @contract.reviewed ? nil : Time.current
+    )
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: [
+          turbo_stream.replace(
+            "contract_#{@contract.id}_review",
+            partial: "contracts/review_button",
+            locals: { contract: @contract }
+          ),
+          turbo_stream.replace(
+            "review-progress",
+            partial: "contracts/review_progress",
+            locals: { project: @project }
+          )
+        ]
+      end
+      format.html { redirect_to @project }
+    end
+  end
+
   def rerun
     @contract = @project.contracts.find(params[:id])
     @contract.extractions.destroy_all
