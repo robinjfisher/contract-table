@@ -1,4 +1,4 @@
-<div id="contracts-table">
+<%= turbo_frame_tag "contracts-table" do %>
 
   <%# Toolbar %>
   <div class="flex items-start justify-between mb-3 gap-4">
@@ -30,7 +30,11 @@
       </div>
     </details>
 
-    <div class="flex gap-2 shrink-0">
+    <div class="flex gap-2 shrink-0 items-center">
+      <% if @sort_field&.positive? || @filter_value.present? %>
+        <%= link_to "Clear filters", project_path(project),
+              class: "inline-flex items-center text-xs font-medium text-amber-600 hover:text-amber-800 border border-amber-200 hover:border-amber-300 rounded-md px-3 py-1.5 transition-colors" %>
+      <% end %>
       <%= link_to "Export CSV",
             project_export_path(project, format: :csv),
             class: "inline-flex items-center text-xs font-medium text-gray-500 hover:text-gray-800 border border-gray-200 hover:border-gray-300 rounded-md px-3 py-1.5 transition-colors" %>
@@ -52,6 +56,7 @@
       </colgroup>
 
       <thead>
+        <%# Row 1: Column headers with sort links %>
         <tr>
           <%# File column — sticky left + top (corner) %>
           <th scope="col"
@@ -63,12 +68,40 @@
               class="sticky top-0 z-20 bg-gray-50 px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 whitespace-nowrap">
             Status
           </th>
-          <%# Field columns — sticky top only %>
+          <%# Field columns — sticky top only, with sort links %>
           <% fields.each do |field| %>
+            <%
+              is_sorted = @sort_field == field.id
+              toggle_dir = (is_sorted && @sort_dir == "asc") ? "desc" : "asc"
+              sort_params = { sort_field: field.id, sort_dir: toggle_dir }
+              sort_params[:filter_field] = @filter_field if @filter_field&.positive?
+              sort_params[:filter_value] = @filter_value if @filter_value.present?
+            %>
             <th scope="col"
                 class="sticky top-0 z-20 bg-gray-50 px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
               <div class="flex items-center justify-between gap-1 group/col">
-                <span class="truncate"><%= field.label %></span>
+                <%= link_to project_path(project, **sort_params),
+                      class: "flex items-center gap-1 truncate hover:text-gray-800 transition-colors #{is_sorted ? 'text-blue-600' : ''}" do %>
+                  <span class="truncate"><%= field.label %></span>
+                  <% if is_sorted %>
+                    <% if @sort_dir == "asc" %>
+                      <%# Chevron up %>
+                      <svg class="h-3 w-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                      </svg>
+                    <% else %>
+                      <%# Chevron down %>
+                      <svg class="h-3 w-3 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    <% end %>
+                  <% else %>
+                    <%# Inactive sort indicator (faint) %>
+                    <svg class="h-3 w-3 shrink-0 opacity-0 group-hover/col:opacity-30 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                    </svg>
+                  <% end %>
+                <% end %>
                 <%= form_with url: project_field_path(project, field), method: :delete, class: "shrink-0" do %>
                   <button type="submit"
                           title="Remove <%= field.label %>"
@@ -77,6 +110,30 @@
                   </button>
                 <% end %>
               </div>
+            </th>
+          <% end %>
+        </tr>
+
+        <%# Row 2: Filter inputs %>
+        <tr>
+          <th class="sticky left-0 z-30 bg-gray-50 px-3 py-1.5 border-b border-r border-gray-200"></th>
+          <th class="z-20 bg-gray-50 px-3 py-1.5 border-b border-gray-200"></th>
+          <% fields.each do |field| %>
+            <th class="z-20 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
+              <%= form_with url: project_path(project), method: :get, data: { controller: "filter" } do |f| %>
+                <% if @sort_field&.positive? %>
+                  <%= f.hidden_field :sort_field, value: @sort_field %>
+                  <%= f.hidden_field :sort_dir, value: @sort_dir %>
+                <% end %>
+                <%= f.hidden_field :filter_field, value: field.id %>
+                <%= f.text_field :filter_value,
+                      value: (@filter_field == field.id ? @filter_value : nil),
+                      placeholder: "Filter…",
+                      autocomplete: "off",
+                      data: { action: "input->filter#debouncedSubmit" },
+                      class: "w-full border rounded px-2 py-1 text-xs font-normal focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-300 transition-colors
+                              #{@filter_field == field.id && @filter_value.present? ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'}" %>
+              <% end %>
             </th>
           <% end %>
         </tr>
@@ -97,4 +154,4 @@
     </table>
   </div>
 
-</div>
+<% end %>
