@@ -133,12 +133,12 @@
           <% end %>
         </tr>
 
-        <%# Row 2: Filter inputs %>
+        <%# Row 2: Filter inputs — sticky below the header row %>
         <tr>
-          <th class="sticky left-0 z-30 bg-gray-50 px-3 py-1.5 border-b border-r border-gray-200"></th>
-          <th class="z-20 bg-gray-50 px-3 py-1.5 border-b border-gray-200"></th>
+          <th class="sticky left-0 top-[43px] z-30 bg-gray-50 px-3 py-1.5 border-b border-r border-gray-200"></th>
+          <th class="sticky top-[43px] z-20 bg-gray-50 px-3 py-1.5 border-b border-gray-200"></th>
           <% fields.each do |field| %>
-            <th class="z-20 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
+            <th class="sticky top-[43px] z-20 bg-gray-50 px-3 py-1.5 border-b border-gray-200">
               <%= form_with url: project_path(project), method: :get, data: { controller: "filter" } do |f| %>
                 <% if @sort_field&.positive? %>
                   <%= f.hidden_field :sort_field, value: @sort_field %>
